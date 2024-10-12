@@ -1,36 +1,49 @@
-import { Router, Request, Response, NextFunction } from 'express';
+import { Hono } from 'hono';
+import { createMiddleware } from 'hono/factory';
 
 import { auth, getSessionCookieFromSession } from '@/lib/auth';
+
 import { githubAuthRouter } from './github';
 
 export * from './bull-board';
 
-export const authMiddleware = async (
-  req: Request,
-  res: Response,
-  next?: NextFunction,
-) => {
-  const cookies = req?.headers?.cookie ?? '';
+export const authMiddleware = createMiddleware(async (c, next) => {
+  const cookies = c.req.header('Cookie') ?? '';
   const sessionId = auth.readSessionCookie(cookies);
 
   if (!sessionId) {
-    res.locals.user = null;
-    res.locals.session = null;
-    return next?.();
+    c.set('user', null);
+    c.set('session', null);
+    return next();
   }
 
   const { session, user } = await auth.validateSession(sessionId);
   const sessionCookie = getSessionCookieFromSession(session);
-  if (sessionCookie) {
-    res.setHeader('Set-Cookie', sessionCookie.serialize());
+
+  if (sessionCookie && session?.fresh) {
+    c.header('Set-Cookie', sessionCookie.serialize(), { append: true });
   }
 
-  res.locals.user = user;
-  res.locals.session = session;
+  if (!session) {
+    c.header('Set-Cookie', auth.createBlankSessionCookie().serialize(), {
+      append: true,
+    });
+  }
 
-  next?.();
-};
+  c.set('user', user);
+  c.set('session', session);
 
-export const authRouter = Router();
+  return next();
+});
 
-authRouter.use('/github', githubAuthRouter);
+export const authCheckMiddleware = createMiddleware(async (c, next) => {
+  if (!c.var.session || !c.var.user) {
+    return c.text('Unauthorized', 401);
+  }
+
+  return next();
+});
+
+export const authRouter = new Hono();
+
+authRouter.route('/github', githubAuthRouter);

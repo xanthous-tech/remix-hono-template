@@ -1,18 +1,18 @@
-import { parseCookies } from 'oslo/cookie';
 import { generateIdFromEntropySize } from 'lucia';
-import { Router } from 'express';
+import { Hono } from 'hono';
+import { getCookie } from 'hono/cookie';
 import { eq } from 'drizzle-orm';
 
 import { logger as parentLogger } from '@/utils/logger';
+import { getMagicLinkTokenById } from '@/utils/magic-link';
+import { createStripeCustomer } from '@/lib/stripe';
 import { db } from '@/db/drizzle';
 import { userTable } from '@/db/schema';
 import { auth } from '@/lib/auth';
-import { createStripeCustomer } from '@/lib/stripe';
-import { getMagicLinkTokenById } from '@/utils/magic-link';
 
-const logger = parentLogger.child({ module: 'magiclink-auth' });
+const logger = parentLogger.child({ middleware: 'magic-link-auth' });
 
-export const magicLinkAuthRouter = Router();
+export const magicLinkAuthRouter = new Hono();
 
 async function getSessionCookieByMagicLinkToken(token: string) {
   const magicLinkToken = await getMagicLinkTokenById(token);
@@ -51,15 +51,19 @@ async function getSessionCookieByMagicLinkToken(token: string) {
   return auth.createSessionCookie(session.id);
 }
 
-magicLinkAuthRouter.get('/:token', async (req, res) => {
-  const token = req.params.token;
+magicLinkAuthRouter.get('/:token', async (c) => {
+  const token = c.req.param('token');
 
-  const cookies = parseCookies(req.headers.cookie ?? '');
-  const callbackUrl = cookies.get('auth_callback_url') ?? '/dashboard';
+  const callbackUrl = getCookie(c, 'auth_callback_url') ?? '/dashboard';
 
-  const sessionCookie = await getSessionCookieByMagicLinkToken(token);
+  try {
+    const sessionCookie = await getSessionCookieByMagicLinkToken(token);
 
-  return res
-    .appendHeader('Set-Cookie', sessionCookie.serialize())
-    .redirect(callbackUrl);
+    c.header('Set-Cookie', sessionCookie.serialize(), { append: true });
+
+    return c.redirect(callbackUrl);
+  } catch (error) {
+    logger.error(error);
+    return c.text('Invalid or expired token', 400);
+  }
 });

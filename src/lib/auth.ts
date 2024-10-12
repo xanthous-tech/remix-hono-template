@@ -52,14 +52,6 @@ export function createCallbackUrlCookie(callbackUrl: string) {
   });
 }
 
-async function deleteExpiredSessions() {
-  await auth.deleteExpiredSessions();
-  logger.trace('Deleted expired sessions');
-}
-
-// run this on server start
-deleteExpiredSessions();
-
 export interface DatabaseUserAttributes {
   email?: string;
   name?: string;

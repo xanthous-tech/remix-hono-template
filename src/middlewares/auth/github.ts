@@ -4,9 +4,10 @@ import {
   OAuth2RequestError,
   generateState,
 } from 'arctic';
-import { Cookie, parseCookies } from 'oslo/cookie';
+import { Cookie } from 'oslo/cookie';
 import { generateIdFromEntropySize } from 'lucia';
-import { Router } from 'express';
+import { Hono } from 'hono';
+import { getCookie } from 'hono/cookie';
 import { eq, and } from 'drizzle-orm';
 
 import { APP_URL, IS_PROD } from '@/config/server';
@@ -20,7 +21,7 @@ export interface GitHubUser {
   login: string;
 }
 
-const logger = parentLogger.child({ module: 'github-auth' });
+const logger = parentLogger.child({ middleware: 'github-auth' });
 
 export const github = new GitHub(
   process.env.GITHUB_CLIENT_ID ?? 'invalidClientId',
@@ -30,7 +31,7 @@ export const github = new GitHub(
   },
 );
 
-export const githubAuthRouter = Router();
+export const githubAuthRouter = new Hono();
 
 async function getGitHubAuthorizationUrl() {
   const state = generateState();
@@ -118,22 +119,23 @@ async function getSessionCookieFromGitHubUser(githubUser: GitHubUser) {
   return auth.createSessionCookie(session.id);
 }
 
-githubAuthRouter.get('/login', async (req, res) => {
+githubAuthRouter.get('/login', async (c) => {
   const { state, url } = await getGitHubAuthorizationUrl();
 
-  res
-    .appendHeader('Set-Cookie', createGitHubStateCookie(state).serialize())
-    .redirect(url.toString());
+  c.header('Set-Cookie', createGitHubStateCookie(state).serialize(), {
+    append: true,
+  });
+
+  return c.redirect(url.toString());
 });
 
-githubAuthRouter.get('/callback', async (req, res) => {
-  const code = req.query.code as string;
-  const state = req.query.state as string;
+githubAuthRouter.get('/callback', async (c) => {
+  const code = c.req.query('code');
+  const state = c.req.query('state');
 
-  const cookies = parseCookies(req.headers.cookie ?? '');
-  const storedState = cookies.get('github_oauth_state') ?? null;
+  const storedState = getCookie(c, 'github_oauth_state') ?? null;
   if (!code || !state || !storedState || state !== storedState) {
-    return res.status(400).send('Invalid state');
+    return c.text('Invalid state', 400);
   }
 
   try {
@@ -142,11 +144,11 @@ githubAuthRouter.get('/callback', async (req, res) => {
 
     const cookie = await getSessionCookieFromGitHubUser(githubUser);
 
-    const callbackUrl = cookies.get('auth_callback_url') ?? '/dashboard';
+    const callbackUrl = getCookie(c, 'auth_callback_url') ?? '/';
 
-    return res
-      .appendHeader('Set-Cookie', cookie.serialize())
-      .redirect(callbackUrl);
+    c.header('Set-Cookie', cookie.serialize(), { append: true });
+
+    return c.redirect(callbackUrl);
   } catch (e) {
     logger.error(e);
     if (
@@ -154,10 +156,9 @@ githubAuthRouter.get('/callback', async (req, res) => {
       e.message === 'bad_verification_code'
     ) {
       // invalid code
-      res.status(400).end('Invalid code');
-      return;
+      return c.text('Invalid code', 400);
     }
-    res.status(500).end('Internal server error');
-    return;
+
+    return c.text('Internal server error', 500);
   }
 });

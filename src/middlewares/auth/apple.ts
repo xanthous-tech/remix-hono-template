@@ -1,9 +1,9 @@
 import { Apple, AppleTokens, OAuth2RequestError, generateState } from 'arctic';
-import { Cookie, parseCookies } from 'oslo/cookie';
+import { Cookie } from 'oslo/cookie';
 import { parseJWT } from 'oslo/jwt';
 import { generateIdFromEntropySize } from 'lucia';
-import { Router } from 'express';
-import bodyParser from 'body-parser';
+import { Hono } from 'hono';
+import { getCookie } from 'hono/cookie';
 import { eq, and } from 'drizzle-orm';
 
 import { APP_URL, IS_PROD } from '@/config/server';
@@ -31,7 +31,7 @@ export const apple = new Apple(
   `${APP_URL}/api/auth/apple/callback`,
 );
 
-export const appleAuthRouter = Router();
+export const appleAuthRouter = new Hono();
 
 async function getAppleAuthorizationUrl() {
   const state = generateState();
@@ -144,37 +144,40 @@ async function getSessionCookieFromAppleUser(appleUser: AppleUser) {
   return auth.createSessionCookie(session.id);
 }
 
-appleAuthRouter.get('/login', async (req, res) => {
+appleAuthRouter.get('/login', async (c) => {
   const { state, url } = await getAppleAuthorizationUrl();
 
-  res
-    .appendHeader('Set-Cookie', createAppleStateCookie(state).serialize())
-    .redirect(url.toString());
+  c.header('Set-Cookie', createAppleStateCookie(state).serialize(), {
+    append: true,
+  });
+  return c.redirect(url.toString());
 });
 
-appleAuthRouter.post('/callback', bodyParser.urlencoded(), async (req, res) => {
-  const { code, state, user } = req.body;
+appleAuthRouter.post('/callback', async (c) => {
+  const body = await c.req.parseBody();
+  const { code, state, user } = body;
 
-  logger.info(req.body);
+  logger.info(body);
 
-  const cookies = parseCookies(req.headers.cookie ?? '');
-  const storedState = cookies.get('apple_oauth_state') ?? null;
+  const storedState = getCookie(c, 'apple_oauth_state') ?? null;
   if (!code || !state || !storedState || state !== storedState) {
-    return res.status(400).send('Invalid state');
+    return c.text('Invalid state', 400);
   }
 
   try {
-    const tokens = await apple.validateAuthorizationCode(code);
+    const tokens = await apple.validateAuthorizationCode(code as string);
 
-    const appleUser = await getAppleUser(tokens, user);
+    const appleUser = await getAppleUser(
+      tokens,
+      user as Pick<AppleUser, 'name'>,
+    );
 
     const cookie = await getSessionCookieFromAppleUser(appleUser);
 
-    const callbackUrl = cookies.get('auth_callback_url') ?? '/dashboard';
+    const callbackUrl = getCookie(c, 'auth_callback_url') ?? '/dashboard';
 
-    return res
-      .appendHeader('Set-Cookie', cookie.serialize())
-      .redirect(callbackUrl);
+    c.header('Set-Cookie', cookie.serialize(), { append: true });
+    return c.redirect(callbackUrl);
   } catch (e) {
     logger.error(e);
     if (
@@ -182,10 +185,8 @@ appleAuthRouter.post('/callback', bodyParser.urlencoded(), async (req, res) => {
       e.message === 'bad_verification_code'
     ) {
       // invalid code
-      res.status(400).end('Invalid code');
-      return;
+      return c.text('Invalid code', 400);
     }
-    res.status(500).end('Internal server error');
-    return;
+    return c.text('Internal server error', 500);
   }
 });
