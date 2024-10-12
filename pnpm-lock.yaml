@@ -8,6 +8,12 @@ importers:
 
   .:
     dependencies:
+      '@bull-board/api':
+        specifier: ^6.0.2
+        version: 6.0.2(@bull-board/ui@6.0.2)
+      '@bull-board/hono':
+        specifier: ^6.0.2
+        version: 6.0.2
       '@hono/node-server':
         specifier: ^1.13.2
         version: 1.13.2(hono@4.6.4)
@@ -60,12 +66,6 @@ importers:
       '@biomejs/biome':
         specifier: ^1.8.3
         version: 1.8.3
-      '@bull-board/api':
-        specifier: ^6.0.2
-        version: 6.0.2(@bull-board/ui@6.0.2)
-      '@bull-board/hono':
-        specifier: ^6.0.2
-        version: 6.0.2
       '@hono/vite-dev-server':
         specifier: ^0.16.0
         version: 0.16.0(hono@4.6.4)

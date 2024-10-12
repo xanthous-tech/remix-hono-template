@@ -17,6 +17,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@bull-board/api": "^6.0.2",
+    "@bull-board/hono": "^6.0.2",
     "@hono/node-server": "^1.13.2",
     "@react-email/components": "^0.0.22",
     "@remix-run/node": "^2.10.2",
@@ -36,8 +38,6 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.8.3",
-    "@bull-board/api": "^6.0.2",
-    "@bull-board/hono": "^6.0.2",
     "@hono/vite-dev-server": "^0.16.0",
     "@hono/zod-validator": "^0.4.1",
     "@lucia-auth/adapter-drizzle": "^1.0.7",
