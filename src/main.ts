@@ -4,6 +4,7 @@ import { serve } from '@hono/node-server';
 import { serveStatic } from '@hono/node-server/serve-static';
 import { remix as createRequestHandler } from 'remix-hono/handler';
 import { Hono } from 'hono';
+import { trimTrailingSlash } from 'hono/trailing-slash';
 
 import { IS_PROD } from './config/server';
 import { httpLogger, logger as parentLogger } from './utils/logger';
@@ -47,6 +48,8 @@ const remixHandler = createRequestHandler({
 });
 
 const app = new Hono();
+
+app.use(trimTrailingSlash());
 
 // TODO: https://github.com/honojs/node-server/issues/39#issuecomment-1521589561
 // app.use(compress());
