@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { ServerBuild } from '@remix-run/node';
+import { type ServerBuild } from 'react-router';
 import { serve } from '@hono/node-server';
 import { serveStatic } from '@hono/node-server/serve-static';
 import { remix as createRequestHandler } from 'remix-hono/handler';
@@ -42,7 +42,7 @@ const remixHandler = createRequestHandler({
   build: viteDevServer
     ? () =>
         viteDevServer.ssrLoadModule(
-          'virtual:remix/server-build',
+          'virtual:react-router/server-build',
         ) as Promise<ServerBuild>
     : await import('../build/server/index.js'),
 });

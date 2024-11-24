@@ -1,0 +1,29 @@
+diff --git a/build/i18next.js b/build/i18next.js
+index a9bdb8e47098b6c9368fdddc993c9b1461e78f75..821a6ba7f6d301575090beefb8af5259d6fe5381 100644
+--- a/build/i18next.js
++++ b/build/i18next.js
+@@ -1,8 +1,8 @@
+ import { createMiddleware } from "hono/factory";
+ import { RemixI18Next } from "remix-i18next/server";
+-const i18nSymbol = Symbol().toString();
+-const LocaleSymbol = Symbol().toString();
+-const TSymbol = Symbol().toString();
++const i18nSymbol = Symbol();
++const LocaleSymbol = Symbol();
++const TSymbol = Symbol();
+ export function i18next(options) {
+     return createMiddleware(async (c, next) => {
+         let i18n = options instanceof RemixI18Next ? options : new RemixI18Next(options);
+diff --git a/build/session.js b/build/session.js
+index b8099d3a4b3cbe2d3d17f854d656921110e30290..e2dae9ef6fe3d231d5303b39aedbb3e42f86997a 100644
+--- a/build/session.js
++++ b/build/session.js
+@@ -1,6 +1,6 @@
+ import { createMiddleware } from "hono/factory";
+-const sessionStorageSymbol = Symbol().toString();
+-const sessionSymbol = Symbol().toString();
++const sessionStorageSymbol = Symbol();
++const sessionSymbol = Symbol();
+ export function session(options) {
+     return createMiddleware(async (c, next) => {
+         let sessionStorage = options.createSessionStorage(c);

@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "npm run build:client && npm run build:server",
-    "build:client": "remix vite:build",
+    "build:client": "react-router build",
     "build:server": "tsup",
     "db:migrate": "node ./dist/db-migrate.js",
     "dev": "cross-env NODE_ENV=development vite --port 3000",
@@ -20,13 +20,15 @@
     "@bull-board/api": "^6.1.0",
     "@bull-board/hono": "^6.1.0",
     "@hono/node-server": "^1.13.2",
+    "@radix-ui/react-dropdown-menu": "^2.1.2",
     "@react-email/components": "^0.0.25",
-    "@remix-run/node": "^2.13.1",
-    "@remix-run/react": "^2.13.1",
+    "@react-router/node": "^7.0.1",
     "@tanstack/react-query": "^5.59.13",
     "bullmq": "^5.19.1",
     "cross-env": "^7.0.3",
     "dotenv": "^16.4.5",
+    "i18next-fs-backend": "^2.3.1",
+    "i18next-http-backend": "^2.7.1",
     "ioredis": "^5.4.1",
     "minio": "^8.0.1",
     "pino": "^9.4.0",
@@ -34,6 +36,7 @@
     "pino-pretty": "^11.2.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-router": "^7.0.1",
     "stripe": "^17.2.0"
   },
   "devDependencies": {
@@ -43,7 +46,8 @@
     "@lucia-auth/adapter-drizzle": "^1.1.0",
     "@mdx-js/rollup": "^3.0.1",
     "@radix-ui/react-slot": "^1.1.0",
-    "@remix-run/dev": "^2.13.1",
+    "@react-router/dev": "^7.0.1",
+    "@react-router/fs-routes": "^7.0.1",
     "@tailwindcss/typography": "^0.5.15",
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18.3.1",
@@ -54,7 +58,9 @@
     "drizzle-kit": "^0.25.0",
     "drizzle-orm": "^0.34.1",
     "drizzle-zod": "^0.5.1",
-    "hono": "^4.6.4",
+    "hono": "^4.6.11",
+    "i18next": "^23.16.8",
+    "i18next-browser-languagedetector": "^8.0.0",
     "isbot": "^5.1.17",
     "lodash": "^4.17.21",
     "lucia": "^3.2.1",
@@ -64,10 +70,12 @@
     "postcss": "^8.4.47",
     "postgres": "^3.4.4",
     "react-email": "^3.0.1",
+    "react-i18next": "^15.1.1",
     "remark-frontmatter": "^5.0.0",
     "remark-mdx-frontmatter": "^5.0.0",
     "remark-toc": "^9.0.0",
-    "remix-hono": "^0.0.16",
+    "remix-hono": "git+https://github.com/rphlmr/remix-hono.git#react-router-7",
+    "remix-i18next": "^7.0.0",
     "rxjs": "^7.8.1",
     "tailwind-merge": "^2.5.3",
     "tailwindcss": "^3.4.13",
@@ -85,5 +93,10 @@
   "volta": {
     "node": "20.13.1",
     "pnpm": "9.1.1"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "remix-hono@0.0.16": "patches/remix-hono@0.0.16.patch"
+    }
   }
 }

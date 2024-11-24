@@ -1,20 +1,19 @@
-import { json, type LoaderFunction, type MetaFunction } from '@remix-run/node';
-import { useLoaderData } from '@remix-run/react';
+import { useLoaderData } from 'react-router';
 
 import { validateSession } from '~/lib/session.server';
 import { useUser } from '~/lib/hooks';
 
-export const meta: MetaFunction = () => {
+export const meta = () => {
   return [
     { title: 'Remix Express Template' },
     { name: 'description', content: 'Remix Express Template' },
   ];
 };
 
-export const loader: LoaderFunction = async (args) => {
+export const loader = async (args) => {
   // await validateSession(args);
 
-  return json({
+  return Response.json({
     user: args.context.user,
   });
 };

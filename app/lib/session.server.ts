@@ -1,12 +1,9 @@
-import { type LoaderFunctionArgs, redirect } from '@remix-run/node';
+import { redirect } from 'react-router';
 
 import { auth } from '@/lib/auth';
 
 // throws if there is no session
-export async function validateSession({
-  request,
-  context,
-}: LoaderFunctionArgs): Promise<void> {
+export async function validateSession({ request, context }): Promise<void> {
   const { pathname } = new URL(request.url);
 
   if (!context.session) {
@@ -14,7 +11,7 @@ export async function validateSession({
   }
 }
 
-export async function signout({ request }: LoaderFunctionArgs): Promise<void> {
+export async function signout({ request }): Promise<void> {
   const cookieHeader = request.headers.get('cookie') || '';
   const sessionId = auth.readSessionCookie(cookieHeader);
 
