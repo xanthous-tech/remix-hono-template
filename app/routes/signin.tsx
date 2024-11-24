@@ -2,9 +2,9 @@ import { data, useLoaderData } from 'react-router';
 
 import { Route } from '@react-router-route-types/signin';
 
-import { Button } from '~/components/ui/button';
-import { GitHubIcon } from '~/components/icons/github';
-import { AppleIcon } from '~/components/icons/apple';
+import { Button } from '@shared/components/ui/button';
+import { GitHubIcon } from '@shared/components/icons/github';
+import { AppleIcon } from '@shared/components/icons/apple';
 
 import { createCallbackUrlCookie } from '@/lib/auth';
 

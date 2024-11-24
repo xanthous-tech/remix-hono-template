@@ -1,6 +1,6 @@
 import { data, useLoaderData } from 'react-router';
 
-import { Route } from '@react-router-route-types/landing';
+import { Route } from '@react-router-route-types/_index';
 
 import i18n from '~/lib/i18next.server';
 import { localeCookie } from '~/lib/cookie.server';
@@ -40,13 +40,13 @@ export default function Index() {
     <div className="relative flex min-h-screen flex-col items-center gap-4">
       <LandingHeader locale={locale} />
       <Hero locale={locale} />
-      <div className="flex flex-col items-center gap-4 pb-20">
+      {/* <div className="flex flex-col items-center gap-4 pb-20">
         <img
           className="max-w-full sm:max-w-[70vw] md:max-w-[50vw]"
           src={`/images/${locale}/preview1.png`}
           alt="App Preview"
         />
-      </div>
+      </div> */}
       <Footer locale={locale} />
     </div>
   );

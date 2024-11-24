@@ -23,7 +23,9 @@
         "./.react-router/types/app/routes/+types/*"
       ],
       "~/*": ["./app/*"],
-      "@/*": ["./server/*"]
+      "@/*": ["./server/*"],
+      "@shared/*": ["./shared/*"],
+      "@site/*": ["./site/*"]
     },
 
     // Vite takes care of building everything, not tsc.

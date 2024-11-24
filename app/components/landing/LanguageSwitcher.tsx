@@ -1,13 +1,13 @@
 import { Link, useNavigate } from 'react-router';
 import { Languages } from 'lucide-react';
 
-import { Button } from '~/components/ui/button';
+import { Button } from '@shared/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu';
+} from '@shared/components/ui/dropdown-menu';
 
 export function LanguageSwitcher() {
   const navigate = useNavigate();

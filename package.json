@@ -46,6 +46,8 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.4",
+    "@astrojs/react": "^3.6.3",
+    "@astrojs/tailwind": "^5.1.2",
     "@biomejs/biome": "^1.9.3",
     "@hono/vite-dev-server": "^0.16.0",
     "@hono/zod-validator": "^0.4.1",
@@ -55,10 +57,11 @@
     "@react-router/dev": "^7.0.1",
     "@react-router/fs-routes": "^7.0.1",
     "@tailwindcss/typography": "^0.5.15",
-    "@types/react": "^18.3.11",
+    "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "arctic": "^1.9.2",
     "astro": "^4.16.14",
+    "astro-i18next": "1.0.0-beta.21",
     "autoprefixer": "^10.4.20",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
@@ -81,11 +84,11 @@
     "remark-frontmatter": "^5.0.0",
     "remark-mdx-frontmatter": "^5.0.0",
     "remark-toc": "^9.0.0",
-    "remix-hono": "git+https://github.com/rphlmr/remix-hono.git#react-router-7",
+    "remix-hono": "github:rphlmr/remix-hono#react-router-7",
     "remix-i18next": "^7.0.0",
     "rxjs": "^7.8.1",
     "tailwind-merge": "^2.5.3",
-    "tailwindcss": "^3.4.13",
+    "tailwindcss": "^3.4.15",
     "tailwindcss-animate": "^1.0.7",
     "tsup": "^8.3.0",
     "tsx": "^4.19.1",
@@ -100,10 +103,5 @@
   "volta": {
     "node": "20.13.1",
     "pnpm": "9.1.1"
-  },
-  "pnpm": {
-    "patchedDependencies": {
-      "remix-hono@0.0.16": "patches/remix-hono@0.0.16.patch"
-    }
   }
 }
