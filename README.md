@@ -7,7 +7,7 @@ This is a boilerplate for building web applications with [Remix](https://remix.r
 I plan to add the following:
 
 - [x] Hono
-- [x] Remix + Vite
+- [x] react-router v7 (Remix v3) + Vite
 - [x] TypeScript
 - [x] Postgres
 - [x] DrizzleORM (to operate Postgres)
