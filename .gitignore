@@ -3,6 +3,8 @@ node_modules
 /.cache
 /build
 /dist
+/static
 .env
 
 .react-router
+.astro

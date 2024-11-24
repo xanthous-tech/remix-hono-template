@@ -63,11 +63,13 @@ export const MagicLinkEmail = ({ link }: MagicLinkEmailProps) => {
 
 export default MagicLinkEmail;
 
-export function renderMagicLinkEmail(input: MagicLinkEmailProps): Email {
+export async function renderMagicLinkEmail(
+  input: MagicLinkEmailProps,
+): Promise<Email> {
   const props = magicLinkEmailSchema.parse(input);
 
   return {
     subject: 'The Login Magic Link for Our Product',
-    html: render(<MagicLinkEmail {...props} />),
+    html: await render(<MagicLinkEmail {...props} />),
   };
 }

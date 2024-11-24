@@ -1,4 +1,6 @@
-import { useLoaderData } from 'react-router';
+import { data, useLoaderData } from 'react-router';
+
+import { Route } from '@react-router-route-types/landing';
 
 import i18n from '~/lib/i18next.server';
 import { localeCookie } from '~/lib/cookie.server';
@@ -7,11 +9,11 @@ import { Hero } from '~/components/landing/Hero';
 import { LandingHeader } from '~/components/landing/LandingHeader';
 import { Footer } from '~/components/landing/Footer';
 
-export const loader = async ({ request }) => {
+export const loader = async ({ request }: Route.LoaderArgs) => {
   const locale = await i18n.getLocale(request);
   const t = await i18n.getFixedT(request);
 
-  return Response.json(
+  return data(
     {
       locale,
       title: t('title'),
@@ -25,7 +27,7 @@ export const loader = async ({ request }) => {
   );
 };
 
-export const meta = ({ data }) => {
+export const meta = ({ data }: Route.MetaArgs) => {
   return [
     { title: data.title },
     { name: 'description', content: data.subtitle },

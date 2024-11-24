@@ -54,9 +54,9 @@ const SubscribeSucessEmail = () => {
 
 export default SubscribeSucessEmail;
 
-export function renderSubscribeSuccessEmail(): Email {
+export async function renderSubscribeSuccessEmail(): Promise<Email> {
   return {
     subject: 'Thank you for subscribing to Our Product!',
-    html: render(<SubscribeSucessEmail />),
+    html: await render(<SubscribeSucessEmail />),
   };
 }

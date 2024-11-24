@@ -1,5 +1,7 @@
 import { useLoaderData } from 'react-router';
 
+import { Route } from '@react-router-route-types/dashboard';
+
 import { validateSession } from '~/lib/session.server';
 import { useUser } from '~/lib/hooks';
 
@@ -10,12 +12,12 @@ export const meta = () => {
   ];
 };
 
-export const loader = async (args) => {
-  // await validateSession(args);
+export const loader = async (args: Route.LoaderArgs) => {
+  await validateSession(args);
 
-  return Response.json({
+  return {
     user: args.context.user,
-  });
+  };
 };
 
 export default function Index() {
@@ -25,7 +27,6 @@ export default function Index() {
   return (
     <div className="m-4">
       <h2 className="text-xl font-bold my-2">Remix Express Template</h2>
-      <p>{data.message}</p>
       <p>
         You are logged in as {data.user?.name}. {user?.data?.name}
       </p>

@@ -1,4 +1,6 @@
-import { useLoaderData } from 'react-router';
+import { data, useLoaderData } from 'react-router';
+
+import { Route } from '@react-router-route-types/signin';
 
 import { Button } from '~/components/ui/button';
 import { GitHubIcon } from '~/components/icons/github';
@@ -13,13 +15,13 @@ export const meta = () => {
   ];
 };
 
-export const loader = async ({ request, context }) => {
+export const loader = async ({ request, context }: Route.LoaderArgs) => {
   const { searchParams } = new URL(request.url);
   const callbackUrl = searchParams.get('callbackUrl') ?? '/dashboard';
 
   const cookie = createCallbackUrlCookie(callbackUrl);
 
-  return Response.json(
+  return data(
     {
       callbackUrl,
     },

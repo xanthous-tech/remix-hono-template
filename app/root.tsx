@@ -11,6 +11,8 @@ import { useTranslation } from 'react-i18next';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 
+import { Route } from '@react-router-root-types/root';
+
 import i18next from '~/lib/i18next.server';
 
 import styles from './globals.css?url';
@@ -25,13 +27,13 @@ export const handle = {
 
 export const links = () => [{ rel: 'stylesheet', href: styles }];
 
-export const loader = async ({ request }) => {
+export const loader = async ({ request }: Route.LoaderArgs) => {
   const locale = await i18next.getLocale(request);
 
-  return Response.json({
+  return {
     locale,
     user: (request as any).user as any,
-  });
+  };
 };
 
 export function Layout({ children }: { children: React.ReactNode }) {

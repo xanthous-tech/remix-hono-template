@@ -3,7 +3,7 @@ import { Stripe } from 'stripe';
 import { APP_URL } from '@/config/server';
 
 export const stripe = new Stripe(process.env.STRIPE_SK || 'invalidStripeSK', {
-  apiVersion: '2024-06-20',
+  apiVersion: '2024-09-30.acacia',
 });
 
 export async function redirectToStripeBillingPortal(

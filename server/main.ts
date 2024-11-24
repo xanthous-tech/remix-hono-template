@@ -73,6 +73,9 @@ app.use(
   serveStatic({
     root: IS_PROD ? './build/client' : './public',
   }),
+  serveStatic({
+    root: './static',
+  }),
 );
 
 // auth middleware (injects user and session into req)
