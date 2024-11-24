@@ -15,7 +15,7 @@ import { Route } from '@react-router-root-types/root';
 
 import i18next from '~/lib/i18next.server';
 
-import styles from './globals.css?url';
+import styles from '@shared/globals.css?url';
 
 export const handle = {
   // In the handle export, we can add a i18n key with namespaces our route
