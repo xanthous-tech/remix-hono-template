@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
 import { eq } from 'drizzle-orm';
+import type { Stripe } from 'stripe';
 
 import { stripe } from '@/lib/stripe';
 import { ProjectPackagesEnum, STRIPE_PRICE_IDS_LOOKUP } from '@/config/plans';
@@ -28,13 +29,15 @@ paymentRouter.post('/webhook', async (c) => {
     STRIPE_WEBHOOK_SECRET,
   );
 
+  const obj = event.data.object as any;
+
   const users = await db
     .select()
     .from(userTable)
-    .where(eq(userTable.customerId, (event as any).customer as string));
+    .where(eq(userTable.customerId, obj.customer as string));
 
   if (users.length === 0) {
-    logger.info(`No user found for stripe customer ${(event as any).customer}`);
+    logger.info(`No user found for stripe customer ${obj.customer}`);
     // TODO: log this issue, but let the webhook go through
     return c.text('OK -- No user bailing.', 200);
   }
@@ -46,7 +49,7 @@ paymentRouter.post('/webhook', async (c) => {
       break;
     }
     case 'invoice.payment_succeeded': {
-      const obj = event.data.object as any;
+      const invoice = obj as Stripe.Invoice;
       const priceID: string = obj.lines?.data[0].plan?.id;
 
       if (obj.discount?.coupon?.percent_off !== 100 || !priceID) {
@@ -70,7 +73,7 @@ paymentRouter.post('/webhook', async (c) => {
     }
     case 'customer.subscription.created':
     case 'customer.subscription.updated': {
-      const obj = event.data.object as any;
+      const subscription = obj as Stripe.Subscription;
       const priceID: string = obj.items?.data[0].plan?.id;
 
       const planStatus = obj.status;
