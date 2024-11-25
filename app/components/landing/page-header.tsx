@@ -1,4 +1,4 @@
-import { cn } from '@shared/utils';
+import { cn } from '~/lib/utils';
 
 function PageHeader({
   className,

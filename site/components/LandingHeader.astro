@@ -1,0 +1,31 @@
+---
+import HeaderLink from "./HeaderLink.astro";
+import { Button } from "~/components/ui/button";
+---
+
+<header
+  class="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
+>
+  <div class="container flex h-14 max-w-screen-2xl items-center">
+    {/* Main Nav */}
+    <div class="mr-4 flex">
+      <a href="/" class="mr-6 flex items-center space-x-2">
+        {/* <Icons.logo class="h-6 w-6" /> */}
+        <span class="font-bold inline-block">My Product</span>
+      </a>
+      <nav class="flex items-center gap-6 text-sm">
+        <HeaderLink href="/">Home</HeaderLink>
+        <HeaderLink href="/faq">FAQ</HeaderLink>
+      </nav>
+    </div>
+    {/* TODO: Mobile Nav */}
+    <div
+      class="flex flex-1 items-center justify-between space-x-2 md:justify-end"
+    >
+      <nav class="flex items-center space-x-2">
+        <!-- <LanguageSwitcher /> -->
+        <Button variant="default"> Sign In </Button>
+      </nav>
+    </div>
+  </div>
+</header>

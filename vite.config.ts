@@ -10,7 +10,7 @@ export default defineConfig({
   plugins: [
     tsconfigPaths(),
     devServer({
-      entry: 'src/main.ts',
+      entry: 'server/main.ts',
       injectClientScript: false,
       exclude: [/^\/(app)\/.+/, /^\/@.+$/, /^\/node_modules\/.*/],
     }),

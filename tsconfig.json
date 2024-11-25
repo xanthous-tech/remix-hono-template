@@ -1,5 +1,12 @@
 {
-  "include": ["**/*.ts", "**/*.tsx", ".react-router/types/**/*"],
+  "extends": "astro/tsconfigs/strict",
+  "include": [
+    "**/*.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".react-router/types/**/*",
+    "site/**/*.astro"
+  ],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
     "types": ["@react-router/node", "vite/client"],
@@ -15,6 +22,7 @@
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
+    "verbatimModuleSyntax": false,
     "baseUrl": ".",
     "rootDirs": [".", "./.react-router/types"],
     "paths": {
@@ -24,7 +32,6 @@
       ],
       "~/*": ["./app/*"],
       "@/*": ["./server/*"],
-      "@shared/*": ["./shared/*"],
       "@site/*": ["./site/*"]
     },
 

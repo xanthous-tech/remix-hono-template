@@ -1,8 +1,8 @@
 import { Link, useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
 
-import { cn } from '@shared/utils';
-import { Button } from '@shared/components/ui/button';
+import { cn } from '~/lib/utils';
+import { Button } from '~/components/ui/button';
 
 import { LanguageSwitcher } from './LanguageSwitcher';
 
@@ -50,7 +50,7 @@ export function LandingHeader({ locale }: SiteHeaderProps) {
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
           <nav className="flex items-center space-x-2">
             <LanguageSwitcher />
-            {/* <Button asChild>
+            <Button asChild>
               <Link
                 to="/signin"
                 // target="_blank"
@@ -58,7 +58,7 @@ export function LandingHeader({ locale }: SiteHeaderProps) {
               >
                 {t('signin')}
               </Link>
-            </Button> */}
+            </Button>
           </nav>
         </div>
       </div>

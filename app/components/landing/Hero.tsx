@@ -1,6 +1,7 @@
 import { Link } from 'react-router';
 import { useTranslation } from 'react-i18next';
 
+import { Button } from '~/components/ui/button';
 import {
   PageActions,
   PageHeader,
@@ -20,6 +21,7 @@ export function Hero({ locale }: HeroProps) {
       <PageHeaderHeading>{t('subtitle')}</PageHeaderHeading>
       <PageHeaderDescription>{t('description')}</PageHeaderDescription>
       <PageActions>
+        <Button variant="secondary">Get Started</Button>
         <Link to="/signin">
           <img
             src={`/locales/${locale}/download_appstore.svg`}
