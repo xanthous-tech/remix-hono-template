@@ -1,6 +1,7 @@
 ---
 import HeaderLink from "./HeaderLink.astro";
-import { Button } from "~/components/ui/button";
+
+import { buttonVariants } from "~/components/ui/button";
 ---
 
 <header
@@ -24,7 +25,9 @@ import { Button } from "~/components/ui/button";
     >
       <nav class="flex items-center space-x-2">
         <!-- <LanguageSwitcher /> -->
-        <Button variant="default"> Sign In </Button>
+        <a href="/signin" class={buttonVariants({ variant: "default" })}>
+          Sign In
+        </a>
       </nav>
     </div>
   </div>

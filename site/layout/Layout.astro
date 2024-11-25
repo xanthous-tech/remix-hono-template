@@ -7,12 +7,7 @@ interface Props {
   description?: string;
 }
 
-const { title, description } = Astro.props;
-let { locale } = Astro.props;
-
-if (!locale) {
-  locale = "en";
-}
+const { title, description, locale = "en" } = Astro.props;
 ---
 
 <!doctype html>

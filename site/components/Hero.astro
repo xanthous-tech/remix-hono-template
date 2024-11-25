@@ -1,0 +1,23 @@
+---
+import {
+  PageActions,
+  PageHeader,
+  PageHeaderDescription,
+  PageHeaderHeading,
+} from "./page-header";
+
+interface Props {
+  subtitle: string;
+  description: string;
+}
+
+const { subtitle, description } = Astro.props as Props;
+---
+
+<PageHeader>
+  <PageHeaderHeading>{subtitle}</PageHeaderHeading>
+  <PageHeaderDescription>{description}</PageHeaderDescription>
+  <PageActions>
+    <slot />
+  </PageActions>
+</PageHeader>

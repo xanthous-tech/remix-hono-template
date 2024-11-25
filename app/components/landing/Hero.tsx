@@ -7,7 +7,7 @@ import {
   PageHeader,
   PageHeaderDescription,
   PageHeaderHeading,
-} from '~/components/landing/page-header';
+} from '@site/components/page-header';
 
 interface HeroProps {
   locale: string;
