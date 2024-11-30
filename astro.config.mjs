@@ -16,7 +16,9 @@ export default defineConfig({
     defaultLocale: "en",
   },
   integrations: [
-    react(),
+    react({
+      experimentalReactChildren: true,
+    }),
     tailwind({
       applyBaseStyles: false,
     }),

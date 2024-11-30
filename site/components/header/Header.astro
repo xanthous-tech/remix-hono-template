@@ -1,7 +1,9 @@
 ---
-import HeaderLink from "./HeaderLink.astro";
+interface Props {
+  title: string;
+}
 
-import { buttonVariants } from "~/components/ui/button";
+const { title } = Astro.props as Props;
 ---
 
 <header
@@ -12,11 +14,10 @@ import { buttonVariants } from "~/components/ui/button";
     <div class="mr-4 flex">
       <a href="/" class="mr-6 flex items-center space-x-2">
         {/* <Icons.logo class="h-6 w-6" /> */}
-        <span class="font-bold inline-block">My Product</span>
+        <span class="font-bold inline-block">{title}</span>
       </a>
       <nav class="flex items-center gap-6 text-sm">
-        <HeaderLink href="/">Home</HeaderLink>
-        <HeaderLink href="/faq">FAQ</HeaderLink>
+        <slot name="main-nav" />
       </nav>
     </div>
     {/* TODO: Mobile Nav */}
@@ -24,10 +25,7 @@ import { buttonVariants } from "~/components/ui/button";
       class="flex flex-1 items-center justify-between space-x-2 md:justify-end"
     >
       <nav class="flex items-center space-x-2">
-        <!-- <LanguageSwitcher /> -->
-        <a href="/signin" class={buttonVariants({ variant: "default" })}>
-          Sign In
-        </a>
+        <slot name="nav-actions" />
       </nav>
     </div>
   </div>
