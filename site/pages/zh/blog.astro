@@ -9,16 +9,16 @@ import { buttonVariants } from "~/components/ui/button";
 import { LanguageSwitcher } from "@site/components/LanguageSwitcher";
 ---
 
-<Layout title="Product Blog">
-  <Header title="My Product">
+<Layout title="产品博客">
+  <Header title="我的产品">
     <Fragment slot="main-nav">
-      <HeaderLink href="/">Home</HeaderLink>
-      <HeaderLink href="/blog">Blog</HeaderLink>
+      <HeaderLink href="/zh">首页</HeaderLink>
+      <HeaderLink href="/zh/blog">博客</HeaderLink>
     </Fragment>
     <Fragment slot="nav-actions">
       <LanguageSwitcher client:load />
       <a href="/signin" class={buttonVariants({ variant: "default" })}>
-        Sign In
+        登录
       </a>
     </Fragment>
   </Header>
@@ -30,9 +30,9 @@ import { LanguageSwitcher } from "@site/components/LanguageSwitcher";
         <h1
           class="inline-block font-heading text-4xl font-bold leading-tight tracking-tighter lg:text-5xl"
         >
-          Blog
+          博客
         </h1>
-        <p class="text-xl text-muted-foreground">Our product blog</p>
+        <p class="text-xl text-muted-foreground">我们的产品博客</p>
       </div>
     </div>
     <hr class="my-8" />
@@ -40,8 +40,8 @@ import { LanguageSwitcher } from "@site/components/LanguageSwitcher";
   </div>
   <Footer>
     <Fragment slot="footer-links">
-      <a href="/terms">Terms of Service</a>
-      <a href="/privacy">Privacy Policy</a>
+      <a href="/terms">服务条款</a>
+      <a href="/privacy">隐私政策</a>
     </Fragment>
   </Footer>
 </Layout>

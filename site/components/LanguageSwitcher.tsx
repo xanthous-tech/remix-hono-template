@@ -14,6 +14,7 @@ export function LanguageSwitcher() {
   const localeNames = ['English', '中文'];
   const locales = ['en', 'zh'];
   const defaultLocale = 'en';
+  const localeRegex = new RegExp(`/(${locales.join('|')})`);
 
   function getLocaleFromCookie() {
     const localeCookieJsonStringBase64 =
@@ -32,14 +33,21 @@ export function LanguageSwitcher() {
   }
 
   function isPathnameContainsLocale(locale: string) {
-    return window.location.pathname.endsWith(`/${locale}`);
+    return window.location.pathname.startsWith(`/${locale}`);
+  }
+
+  function isPathnameInDefaultLocale() {
+    return window.location.pathname.match(localeRegex) === null;
   }
 
   useEffect(() => {
     const locale = getLocaleFromCookie();
     console.log(locale);
-    if (window.location.pathname === '/' && locale !== defaultLocale) {
-      window.location.href = `${window.location.href}${window.location.href.endsWith('/') ? '' : '/'}${locale}`;
+    if (locale !== defaultLocale && isPathnameInDefaultLocale()) {
+      window.location.href = `/${locale}${window.location.pathname.replace(
+        localeRegex,
+        '',
+      )}`;
     }
   });
 
@@ -63,11 +71,21 @@ export function LanguageSwitcher() {
               } else {
                 if (locale === defaultLocale) {
                   console.log(window.location.href);
+                  console.log(window.location.pathname);
                   // remove last locale component from the URL
-                  window.location.href = window.location.href =
-                    window.location.href.split('/').slice(0, -1).join('/');
+                  window.location.href = `${window.location.href.replace(
+                    localeRegex,
+                    '',
+                  )}`;
                 } else {
-                  window.location.href = `${window.location.href}${window.location.href.endsWith('/') ? '' : '/'}${locale}`;
+                  if (window.location.pathname === '/') {
+                    window.location.href = `/${locale}`;
+                  } else {
+                    window.location.href = `/${locale}${window.location.pathname.replace(
+                      localeRegex,
+                      '',
+                    )}`;
+                  }
                 }
               }
             }}
