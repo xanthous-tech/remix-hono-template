@@ -20,7 +20,7 @@ const posts = (await getCollection("blog-zh")).sort(
   <Header title="我的产品">
     <Fragment slot="main-nav">
       <HeaderLink href="/zh">首页</HeaderLink>
-      <HeaderLink href="/zh/blog">博客</HeaderLink>
+      <HeaderLink href="/zh/blog" isActive>博客</HeaderLink>
     </Fragment>
     <Fragment slot="nav-actions">
       <LanguageSwitcher client:load />
@@ -66,7 +66,7 @@ const posts = (await getCollection("blog-zh")).sort(
                   <FormattedDate date={post.data.date} />
                 </p>
               )}
-              <a href={`/blog/${post.slug}`} class="absolute inset-0">
+              <a href={`/zh/blog/${post.slug}`} class="absolute inset-0">
                 <span class="sr-only">View Article</span>
               </a>
             </article>

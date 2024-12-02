@@ -20,7 +20,7 @@ const posts = (await getCollection("blog-en")).sort(
   <Header title="My Product">
     <Fragment slot="main-nav">
       <HeaderLink href="/">Home</HeaderLink>
-      <HeaderLink href="/blog">Blog</HeaderLink>
+      <HeaderLink href="/blog" isActive>Blog</HeaderLink>
     </Fragment>
     <Fragment slot="nav-actions">
       <LanguageSwitcher client:load />

@@ -29,7 +29,7 @@ const { Content } = await post.render();
   <Header title="My Product">
     <Fragment slot="main-nav">
       <HeaderLink href="/">Home</HeaderLink>
-      <HeaderLink href="/blog">Blog</HeaderLink>
+      <HeaderLink href="/blog" isActive>Blog</HeaderLink>
     </Fragment>
     <Fragment slot="nav-actions">
       <LanguageSwitcher client:load />
@@ -58,7 +58,7 @@ const { Content } = await post.render();
         />
       )
     }
-    <div class="prose">
+    <div class="prose max-w-none">
       <Content />
     </div>
     <hr class="mt-12" />

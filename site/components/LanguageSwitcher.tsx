@@ -1,6 +1,13 @@
+import { useEffect } from 'react';
 import { Languages } from 'lucide-react';
 import Cookies from 'js-cookie';
 
+import {
+  locales,
+  defaultLocale,
+  localeNames,
+  localeRegex,
+} from '@site/config/locale';
 import { Button } from '~/components/ui/button';
 import {
   DropdownMenu,
@@ -8,14 +15,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
-import { useEffect } from 'react';
 
 export function LanguageSwitcher() {
-  const localeNames = ['English', '中文'];
-  const locales = ['en', 'zh'];
-  const defaultLocale = 'en';
-  const localeRegex = new RegExp(`/(${locales.join('|')})`);
-
   function getLocaleFromCookie() {
     const localeCookieJsonStringBase64 =
       Cookies.get('locale') ?? btoa(`"${defaultLocale}"`);
@@ -42,7 +43,6 @@ export function LanguageSwitcher() {
 
   useEffect(() => {
     const locale = getLocaleFromCookie();
-    console.log(locale);
     if (locale !== defaultLocale && isPathnameInDefaultLocale()) {
       window.location.href = `/${locale}${window.location.pathname.replace(
         localeRegex,
@@ -64,14 +64,11 @@ export function LanguageSwitcher() {
           <DropdownMenuItem
             key={locale}
             onClick={() => {
-              console.log(locale);
               setLocaleCookie(locale);
               if (isPathnameContainsLocale(locale)) {
                 window.location.reload();
               } else {
                 if (locale === defaultLocale) {
-                  console.log(window.location.href);
-                  console.log(window.location.pathname);
                   // remove last locale component from the URL
                   window.location.href = `${window.location.href.replace(
                     localeRegex,

@@ -13,13 +13,6 @@ const config = {
       },
     },
     extend: {
-      typography: {
-        DEFAULT: {
-          css: {
-            maxWidth: '100ch', // add required value here
-          },
-        },
-      },
       colors: {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',

@@ -1,0 +1,78 @@
+---
+import { type CollectionEntry, getCollection } from "astro:content";
+import { ChevronLeft } from "lucide-react";
+
+import Layout from "@site/layout/Layout.astro";
+
+import Header from "@site/components/header/Header.astro";
+import HeaderLink from "@site/components/header/HeaderLink.astro";
+import Footer from "@site/components/Footer.astro";
+import FormattedDate from "@site/components/FormattedDate.astro";
+
+import { buttonVariants } from "~/components/ui/button";
+import { LanguageSwitcher } from "@site/components/LanguageSwitcher";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("blog-zh");
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: post,
+  }));
+}
+type Props = CollectionEntry<"blog-en">;
+
+const post = Astro.props;
+const { Content } = await post.render();
+---
+
+<Layout title="产品博客">
+  <Header title="我的产品">
+    <Fragment slot="main-nav">
+      <HeaderLink href="/zh">首页</HeaderLink>
+      <HeaderLink href="/zh/blog" isActive>博客</HeaderLink>
+    </Fragment>
+    <Fragment slot="nav-actions">
+      <LanguageSwitcher client:load />
+      <a href="/signin" class={buttonVariants({ variant: "default" })}>
+        登录
+      </a>
+    </Fragment>
+  </Header>
+  <article class="container relative max-w-3xl py-6 lg:py-10">
+    <div class="mb-8">
+      {post.data.date && <FormattedDate date={post.data.date} />}
+      <h1
+        class="mt-2 inline-block font-heading text-4xl font-bold leading-tight tracking-tighter lg:text-5xl"
+      >
+        {post.data.title}
+      </h1>
+    </div>
+    {
+      post.data.image && (
+        <img
+          src={post.data.image}
+          alt={post.data.title}
+          width={720}
+          height={405}
+          class="my-8 rounded-md border bg-muted transition-colors"
+        />
+      )
+    }
+    <div class="prose max-w-none">
+      <Content />
+    </div>
+    <hr class="mt-12" />
+    <div class="flex justify-center py-6 lg:py-10">
+      <a href="/zh/blog" class={buttonVariants({ variant: "ghost" })}>
+        <ChevronLeft className="mr-2 h-4 w-4" />
+        全部文章
+      </a>
+    </div>
+  </article>
+  <Footer>
+    <Fragment slot="footer-links">
+      <a href="/terms">服务条款</a>
+      <a href="/privacy">隐私政策</a>
+    </Fragment>
+  </Footer>
+</Layout>
