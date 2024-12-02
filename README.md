@@ -9,6 +9,8 @@ I plan to add the following:
 - [x] Hono (for server)
 - [x] react-router v7 (aka Remix v3, for app)
 - [x] Astro (for static content)
+  - [x] Blog
+  - [ ] Docs (via Starlight)
 - [x] TypeScript
 - [x] Postgres
 - [x] DrizzleORM (to operate Postgres)
