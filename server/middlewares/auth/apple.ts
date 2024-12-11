@@ -1,16 +1,17 @@
-import { Apple, AppleTokens, OAuth2RequestError, generateState } from 'arctic';
-import { Cookie } from 'oslo/cookie';
-import { parseJWT } from 'oslo/jwt';
-import { generateIdFromEntropySize } from 'lucia';
+import { Apple, OAuth2Tokens, OAuth2RequestError, generateState } from 'arctic';
+import { decodeBase64IgnorePadding } from '@oslojs/encoding';
+import { parseJWT } from '@oslojs/jwt';
 import { Hono } from 'hono';
 import { getCookie } from 'hono/cookie';
 import { eq, and } from 'drizzle-orm';
 
 import { APP_URL, IS_PROD } from '@/config/server';
 import { logger as parentLogger } from '@/utils/logger';
+import { generateIdFromEntropySize } from '@/utils/crypto';
+import { Cookie } from '@/utils/cookie';
 import { db } from '@/db/drizzle';
 import { accountTable, userTable } from '@/db/schema';
-import { auth } from '@/lib/auth';
+// import { auth } from '@/lib/auth';
 import { createStripeCustomer } from '@/lib/stripe';
 
 export interface AppleUser {
@@ -21,13 +22,15 @@ export interface AppleUser {
 
 const logger = parentLogger.child({ module: 'apple-auth' });
 
+const applePrivateKey = decodeBase64IgnorePadding(
+  process.env.APPLE_CERTIFICATE ?? 'invalidCertificate',
+);
+
 export const apple = new Apple(
-  {
-    clientId: process.env.APPLE_CLIENT_ID ?? 'invalidClientId',
-    teamId: process.env.APPLE_TEAM_ID ?? 'invalidTeamId',
-    keyId: process.env.APPLE_KEY_ID ?? 'invalidKeyId',
-    certificate: process.env.APPLE_CERTIFICATE ?? 'invalidCertificate',
-  },
+  process.env.APPLE_CLIENT_ID ?? 'invalidClientId',
+  process.env.APPLE_TEAM_ID ?? 'invalidTeamId',
+  process.env.APPLE_KEY_ID ?? 'invalidKeyId',
+  applePrivateKey,
   `${APP_URL}/api/auth/apple/callback`,
 );
 
@@ -35,9 +38,8 @@ export const appleAuthRouter = new Hono();
 
 async function getAppleAuthorizationUrl() {
   const state = generateState();
-  const url = await apple.createAuthorizationURL(state, {
-    scopes: ['name', 'email'],
-  });
+  const scopes = ['name', 'email'];
+  const url = apple.createAuthorizationURL(state, scopes);
   url.searchParams.set('response_mode', 'form_post');
 
   return {
@@ -57,8 +59,8 @@ function createAppleStateCookie(state: string) {
 }
 
 async function getAppleUser(
-  tokens: AppleTokens,
-  user?: Pick<AppleUser, 'name'>,
+  tokens: OAuth2Tokens,
+  user: Omit<AppleUser, 'id'>,
 ): Promise<AppleUser> {
   // this.logger.debug(JSON.stringify(parseJWT(tokens.idToken)));
   const refreshedTokens = await apple.refreshAccessToken(
@@ -71,7 +73,7 @@ async function getAppleUser(
   }
 
   return {
-    name: user?.name,
+    name: user?.name ?? null,
     email: (jwt.payload as any).email as string,
     id: jwt.subject,
   };
@@ -93,11 +95,11 @@ async function getSessionCookieFromAppleUser(appleUser: AppleUser) {
     const { account, user } = await db.transaction(async (tx) => {
       const userId = generateIdFromEntropySize(10);
 
-      const stripeCustomer = await createStripeCustomer(
-        userId,
-        appleUser.email,
-        appleUser.email,
-      );
+      // const stripeCustomer = await createStripeCustomer(
+      //   userId,
+      //   appleUser.email ?? '',
+      //   appleUser.email ?? '',
+      // );
 
       const users = await tx
         .insert(userTable)
@@ -106,8 +108,8 @@ async function getSessionCookieFromAppleUser(appleUser: AppleUser) {
           name: appleUser.name
             ? `${appleUser.name.firstName} ${appleUser.name.lastName}`
             : undefined,
-          email: appleUser.email,
-          customerId: stripeCustomer.id,
+          email: appleUser.email ?? `${appleUser.id}@apple.id`,
+          // customerId: stripeCustomer.id,
         })
         .returning();
 
@@ -140,7 +142,21 @@ async function getSessionCookieFromAppleUser(appleUser: AppleUser) {
   }
 
   const user = users[0];
-  const session = await auth.createSession(user.id, {});
+
+  const sessions = await auth.getUserSessions(user.id);
+
+  if (sessions.length === 0) {
+    const session = await auth.createSession(user.id, {});
+    return auth.createSessionCookie(session.id);
+  }
+
+  const session = sessions.find((s) => s.expiresAt > new Date());
+
+  if (!session) {
+    const newSession = await auth.createSession(user.id, {});
+    return auth.createSessionCookie(newSession.id);
+  }
+
   return auth.createSessionCookie(session.id);
 }
 
@@ -153,11 +169,49 @@ appleAuthRouter.get('/login', async (c) => {
   return c.redirect(url.toString());
 });
 
+appleAuthRouter.post(
+  '/register',
+  zValidator(
+    'json',
+    z.object({
+      id: z.string(),
+      email: z.string().email().nullable(),
+      name: z
+        .object({
+          firstName: z.string(),
+          lastName: z.string(),
+        })
+        .nullable(),
+    }),
+  ),
+  async (c) => {
+    const body = c.req.valid('json');
+    logger.info(body);
+
+    const { id, name, email } = body;
+
+    if (!id) {
+      return c.text('Invalid request', 400);
+    }
+
+    const appleUser: AppleUser = {
+      id,
+      name,
+      email,
+    };
+
+    const cookie = await getSessionCookieFromAppleUser(appleUser);
+    return c.json({ sessionId: cookie.value });
+  },
+);
+
 appleAuthRouter.post('/callback', async (c) => {
   const body = await c.req.parseBody();
-  const { code, state, user } = body;
+  const { code, state, user: userJsonString } = body;
 
   logger.info(body);
+
+  const user: AppleUser = JSON.parse(userJsonString as string);
 
   const storedState = getCookie(c, 'apple_oauth_state') ?? null;
   if (!code || !state || !storedState || state !== storedState) {
@@ -167,10 +221,7 @@ appleAuthRouter.post('/callback', async (c) => {
   try {
     const tokens = await apple.validateAuthorizationCode(code as string);
 
-    const appleUser = await getAppleUser(
-      tokens,
-      user as Pick<AppleUser, 'name'>,
-    );
+    const appleUser = await getAppleUser(tokens, user);
 
     const cookie = await getSessionCookieFromAppleUser(appleUser);
 

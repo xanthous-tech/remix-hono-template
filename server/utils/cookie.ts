@@ -1,4 +1,4 @@
-import type { TimeSpan } from '@/utils/timespan';
+import type { TimeSpan } from './timespan';
 
 export interface CookieAttributes {
   secure?: boolean;

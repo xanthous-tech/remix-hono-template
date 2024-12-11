@@ -105,6 +105,9 @@ importers:
       '@oslojs/encoding':
         specifier: ^1.1.0
         version: 1.1.0
+      '@oslojs/jwt':
+        specifier: ^0.3.0
+        version: 0.3.0
       '@radix-ui/react-slot':
         specifier: ^1.1.0
         version: 1.1.0(@types/react@18.3.12)(react@18.3.1)
@@ -1658,6 +1661,9 @@ packages:
 
   '@oslojs/jwt@0.2.0':
     resolution: {integrity: sha512-bLE7BtHrURedCn4Mco3ma9L4Y1GR2SMBuIvjWr7rmQ4/W/4Jy70TIAgZ+0nIlk0xHz1vNP8x8DCns45Sb2XRbg==}
+
+  '@oslojs/jwt@0.3.0':
+    resolution: {integrity: sha512-bg9hh6gc7ppS2haLv2nE7oezroXK6a6zGTz6JzCHXAQKCOOZM4HfOrV9DwCaDimrTcDi1nHAe2ueAAxZ23eeUA==}
 
   '@pkgjs/parseargs@0.11.0':
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
@@ -6920,6 +6926,10 @@ snapshots:
   '@oslojs/encoding@1.1.0': {}
 
   '@oslojs/jwt@0.2.0':
+    dependencies:
+      '@oslojs/encoding': 0.4.1
+
+  '@oslojs/jwt@0.3.0':
     dependencies:
       '@oslojs/encoding': 0.4.1
 

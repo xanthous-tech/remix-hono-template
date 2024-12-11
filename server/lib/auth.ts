@@ -1,16 +1,18 @@
-import {
-  encodeBase32LowerCaseNoPadding,
-  encodeHexLowerCase,
-} from '@oslojs/encoding';
+import { encodeHexLowerCase } from '@oslojs/encoding';
 import { sha256 } from '@oslojs/crypto/sha2';
 import { eq } from 'drizzle-orm';
 
 import { logger as parentLogger } from '@/utils/logger';
+import { generateIdFromEntropySize } from '@/utils/crypto';
 import { createDate, isWithinExpirationDate, TimeSpan } from '@/utils/timespan';
+import {
+  Cookie,
+  type CookieAttributes,
+  CookieController,
+} from '@/utils/cookie';
 import { IS_PROD } from '@/config/server';
 import { db } from '@/db/drizzle';
 import { userTable, sessionTable, type User, type Session } from '@/db/schema';
-import { Cookie, type CookieAttributes, CookieController } from '@/lib/cookie';
 
 const logger = parentLogger.child({ module: 'auth' });
 
@@ -33,10 +35,7 @@ const sessionCookieController = new CookieController(
 );
 
 export function generateSessionToken(): string {
-  const bytes = new Uint8Array(20);
-  crypto.getRandomValues(bytes);
-  const token = encodeBase32LowerCaseNoPadding(bytes);
-  return token;
+  return generateIdFromEntropySize(20);
 }
 
 export async function createSession(
