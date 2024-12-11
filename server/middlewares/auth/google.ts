@@ -1,22 +1,22 @@
 import {
   Google,
-  GoogleTokens,
   OAuth2RequestError,
   generateState,
   generateCodeVerifier,
+  OAuth2Tokens,
 } from 'arctic';
-import { Cookie } from 'oslo/cookie';
-import { generateIdFromEntropySize } from 'lucia';
 import { Hono } from 'hono';
 import { getCookie } from 'hono/cookie';
 import { eq, and } from 'drizzle-orm';
 
 import { APP_URL, IS_PROD } from '@/config/server';
 import { logger as parentLogger } from '@/utils/logger';
-import { auth } from '@/lib/auth';
-import { createStripeCustomer } from '@/lib/stripe';
+import { Cookie } from '@/utils/cookie';
+import { generateIdFromEntropySize } from '@/utils/crypto';
 import { db } from '@/db/drizzle';
 import { accountTable, userTable } from '@/db/schema';
+import { createStripeCustomer } from '@/lib/stripe';
+import { createSession, createSessionCookie } from '@/lib/auth';
 
 export interface GoogleUser {
   sub: string;
@@ -39,9 +39,8 @@ export const googleAuthRouter = new Hono();
 async function getGoogleAuthorizationUrl() {
   const state = generateState();
   const codeVerifier = generateCodeVerifier();
-  const url = await google.createAuthorizationURL(state, codeVerifier, {
-    scopes: ['profile', 'email'],
-  });
+  const scopes = ['profile', 'email'];
+  const url = google.createAuthorizationURL(state, codeVerifier, scopes);
 
   return {
     url,
@@ -70,12 +69,12 @@ function createGoogleCodeVerifierCookie(codeVerifier: string) {
   });
 }
 
-async function getGoogleUser(tokens: GoogleTokens) {
+async function getGoogleUser(tokens: OAuth2Tokens) {
   const googleUserResponse = await fetch(
     'https://openidconnect.googleapis.com/v1/userinfo',
     {
       headers: {
-        Authorization: `Bearer ${tokens.accessToken}`,
+        Authorization: `Bearer ${tokens.accessToken()}`,
       },
     },
   );
@@ -129,8 +128,8 @@ async function getSessionCookieFromGoogleUser(googleUser: GoogleUser) {
       return { account: accounts[0], user: users[0] };
     });
 
-    const session = await auth.createSession(user.id, {});
-    return auth.createSessionCookie(session.id);
+    const session = await createSession(user.id);
+    return createSessionCookie(session);
   }
 
   const account = accounts[0];
@@ -145,8 +144,8 @@ async function getSessionCookieFromGoogleUser(googleUser: GoogleUser) {
   }
 
   const user = users[0];
-  const session = await auth.createSession(user.id, {});
-  return auth.createSessionCookie(session.id);
+  const session = await createSession(user.id);
+  return createSessionCookie(session);
 }
 
 googleAuthRouter.get('/login', async (c) => {

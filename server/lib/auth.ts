@@ -1,6 +1,4 @@
-import { encodeHexLowerCase } from '@oslojs/encoding';
-import { sha256 } from '@oslojs/crypto/sha2';
-import { eq } from 'drizzle-orm';
+import { eq, lte } from 'drizzle-orm';
 
 import { logger as parentLogger } from '@/utils/logger';
 import { generateIdFromEntropySize } from '@/utils/crypto';
@@ -34,15 +32,8 @@ const sessionCookieController = new CookieController(
   },
 );
 
-export function generateSessionToken(): string {
-  return generateIdFromEntropySize(20);
-}
-
-export async function createSession(
-  token: string,
-  userId: string,
-): Promise<Session> {
-  const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
+export async function createSession(userId: string): Promise<Session> {
+  const sessionId = generateIdFromEntropySize(20);
   const session: Session = {
     id: sessionId,
     userId,
@@ -52,10 +43,9 @@ export async function createSession(
   return session;
 }
 
-export async function validateSessionToken(
-  token: string,
+export async function validateSession(
+  sessionId: string,
 ): Promise<SessionValidationResult> {
-  const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
   const result = await db
     .select({ user: userTable, session: sessionTable })
     .from(sessionTable)
@@ -69,7 +59,7 @@ export async function validateSessionToken(
   const { user, session } = result[0];
 
   if (!isWithinExpirationDate(session.expiresAt)) {
-    await db.delete(sessionTable).where(eq(sessionTable.id, session.id));
+    await invalidateSession(session.id);
     return { session: null, user: null };
   }
 
@@ -94,6 +84,15 @@ export async function invalidateSession(sessionId: string): Promise<void> {
   await db.delete(sessionTable).where(eq(sessionTable.id, sessionId));
 }
 
+export async function getUserSessions(userId: string): Promise<Session[]> {
+  return db.select().from(sessionTable).where(eq(sessionTable.userId, userId));
+}
+
+export async function deleteExpiredSessions(): Promise<void> {
+  await db.delete(sessionTable).where(lte(sessionTable.expiresAt, new Date()));
+  logger.trace('Deleted expired sessions');
+}
+
 export type SessionValidationResult =
   | { session: Session; user: User }
   | { session: null; user: null };
@@ -102,8 +101,13 @@ export function createBlankSessionCookie(): Cookie {
   return sessionCookieController.createBlankCookie();
 }
 
-export function createSessionCookieFromToken(token: string): Cookie {
-  return sessionCookieController.createCookie(token);
+export function createSessionCookie(session: Session): Cookie {
+  return sessionCookieController.createCookie(session.id);
+}
+
+export function readSessionCookie(cookieHeader: string): string | null {
+  const sessionId = sessionCookieController.parse(cookieHeader);
+  return sessionId;
 }
 
 export function createCallbackUrlCookie(callbackUrl: string) {

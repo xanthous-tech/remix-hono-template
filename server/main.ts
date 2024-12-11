@@ -8,7 +8,7 @@ import { trimTrailingSlash } from 'hono/trailing-slash';
 
 import { IS_PROD } from './config/server';
 import { httpLogger, logger as parentLogger } from './utils/logger';
-import { auth } from './lib/auth';
+import { deleteExpiredSessions } from './lib/auth';
 import { cache } from './middlewares/cache';
 import {
   authMiddleware,
@@ -111,8 +111,7 @@ if (IS_PROD) {
       port,
     },
     async () => {
-      await auth.deleteExpiredSessions();
-      logger.trace('Deleted expired sessions');
+      await deleteExpiredSessions();
       logger.info(`Hono server listening at http://localhost:${port}`);
     },
   );

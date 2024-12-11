@@ -1,9 +1,16 @@
-import { Apple, OAuth2Tokens, OAuth2RequestError, generateState } from 'arctic';
+import {
+  Apple,
+  OAuth2Tokens,
+  decodeIdToken,
+  OAuth2RequestError,
+  generateState,
+} from 'arctic';
 import { decodeBase64IgnorePadding } from '@oslojs/encoding';
-import { parseJWT } from '@oslojs/jwt';
 import { Hono } from 'hono';
 import { getCookie } from 'hono/cookie';
 import { eq, and } from 'drizzle-orm';
+import { z } from 'zod';
+import { zValidator } from '@hono/zod-validator';
 
 import { APP_URL, IS_PROD } from '@/config/server';
 import { logger as parentLogger } from '@/utils/logger';
@@ -12,11 +19,15 @@ import { Cookie } from '@/utils/cookie';
 import { db } from '@/db/drizzle';
 import { accountTable, userTable } from '@/db/schema';
 // import { auth } from '@/lib/auth';
-import { createStripeCustomer } from '@/lib/stripe';
+import {
+  createSession,
+  createSessionCookie,
+  getUserSessions,
+} from '@/lib/auth';
 
 export interface AppleUser {
-  name?: { firstName: string; lastName: string };
-  email: string;
+  name: { firstName: string; lastName: string } | null;
+  email: string | null;
   id: string;
 }
 
@@ -62,20 +73,14 @@ async function getAppleUser(
   tokens: OAuth2Tokens,
   user: Omit<AppleUser, 'id'>,
 ): Promise<AppleUser> {
-  // this.logger.debug(JSON.stringify(parseJWT(tokens.idToken)));
-  const refreshedTokens = await apple.refreshAccessToken(
-    tokens.refreshToken ?? 'invalidRefreshToken',
-  );
-  const jwt = parseJWT(refreshedTokens.idToken);
+  const idToken: any = decodeIdToken(tokens.idToken());
+  logger.debug(idToken);
 
-  if (!jwt || !jwt.subject) {
-    throw new Error('Invalid JWT');
-  }
-
+  // TODO: Untested, needs further checking. Move arctic v1's refresh token methods if needed.
   return {
+    id: idToken.sub,
     name: user?.name ?? null,
-    email: (jwt.payload as any).email as string,
-    id: jwt.subject,
+    email: (idToken.payload as any).email as string,
   };
 }
 
@@ -95,12 +100,6 @@ async function getSessionCookieFromAppleUser(appleUser: AppleUser) {
     const { account, user } = await db.transaction(async (tx) => {
       const userId = generateIdFromEntropySize(10);
 
-      // const stripeCustomer = await createStripeCustomer(
-      //   userId,
-      //   appleUser.email ?? '',
-      //   appleUser.email ?? '',
-      // );
-
       const users = await tx
         .insert(userTable)
         .values({
@@ -109,7 +108,6 @@ async function getSessionCookieFromAppleUser(appleUser: AppleUser) {
             ? `${appleUser.name.firstName} ${appleUser.name.lastName}`
             : undefined,
           email: appleUser.email ?? `${appleUser.id}@apple.id`,
-          // customerId: stripeCustomer.id,
         })
         .returning();
 
@@ -126,8 +124,8 @@ async function getSessionCookieFromAppleUser(appleUser: AppleUser) {
       return { account: accounts[0], user: users[0] };
     });
 
-    const session = await auth.createSession(user.id, {});
-    return auth.createSessionCookie(session.id);
+    const session = await createSession(user.id);
+    return createSessionCookie(session);
   }
 
   const account = accounts[0];
@@ -143,21 +141,21 @@ async function getSessionCookieFromAppleUser(appleUser: AppleUser) {
 
   const user = users[0];
 
-  const sessions = await auth.getUserSessions(user.id);
+  const sessions = await getUserSessions(user.id);
 
   if (sessions.length === 0) {
-    const session = await auth.createSession(user.id, {});
-    return auth.createSessionCookie(session.id);
+    const session = await createSession(user.id);
+    return createSessionCookie(session);
   }
 
   const session = sessions.find((s) => s.expiresAt > new Date());
 
   if (!session) {
-    const newSession = await auth.createSession(user.id, {});
-    return auth.createSessionCookie(newSession.id);
+    const newSession = await createSession(user.id);
+    return createSessionCookie(newSession);
   }
 
-  return auth.createSessionCookie(session.id);
+  return createSessionCookie(session);
 }
 
 appleAuthRouter.get('/login', async (c) => {

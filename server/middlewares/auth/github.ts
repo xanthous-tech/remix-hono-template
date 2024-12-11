@@ -1,20 +1,20 @@
 import {
   GitHub,
-  GitHubTokens,
   OAuth2RequestError,
+  OAuth2Tokens,
   generateState,
 } from 'arctic';
-import { Cookie } from 'oslo/cookie';
-import { generateIdFromEntropySize } from 'lucia';
 import { Hono } from 'hono';
 import { getCookie } from 'hono/cookie';
 import { eq, and } from 'drizzle-orm';
 
 import { APP_URL, IS_PROD } from '@/config/server';
 import { logger as parentLogger } from '@/utils/logger';
+import { Cookie } from '@/utils/cookie';
+import { generateIdFromEntropySize } from '@/utils/crypto';
 import { db } from '@/db/drizzle';
 import { accountTable, userTable } from '@/db/schema';
-import { auth } from '@/lib/auth';
+import { createSession, createSessionCookie } from '@/lib/auth';
 
 export interface GitHubUser {
   id: string;
@@ -26,16 +26,16 @@ const logger = parentLogger.child({ middleware: 'github-auth' });
 export const github = new GitHub(
   process.env.GITHUB_CLIENT_ID ?? 'invalidClientId',
   process.env.GITHUB_CLIENT_SECRET ?? 'invalidClientSecret',
-  {
-    redirectURI: `${APP_URL}/api/auth/github/callback`,
-  },
+  `${APP_URL}/api/auth/github/callback`,
 );
 
 export const githubAuthRouter = new Hono();
 
 async function getGitHubAuthorizationUrl() {
   const state = generateState();
-  const url = await github.createAuthorizationURL(state);
+  // TODO: Add scopes if needed
+  const scopes: string[] = [];
+  const url = await github.createAuthorizationURL(state, scopes);
   return {
     url,
     state,
@@ -52,10 +52,10 @@ function createGitHubStateCookie(state: string) {
   });
 }
 
-async function getGitHubUser(tokens: GitHubTokens) {
+async function getGitHubUser(tokens: OAuth2Tokens) {
   const githubUserResponse = await fetch('https://api.github.com/user', {
     headers: {
-      Authorization: `Bearer ${tokens.accessToken}`,
+      Authorization: `Bearer ${tokens.accessToken()}`,
     },
   });
   const githubUser: GitHubUser = await githubUserResponse.json();
@@ -99,8 +99,8 @@ async function getSessionCookieFromGitHubUser(githubUser: GitHubUser) {
       return { account: accounts[0], user: users[0] };
     });
 
-    const session = await auth.createSession(user.id, {});
-    return auth.createSessionCookie(session.id);
+    const session = await createSession(user.id);
+    return createSessionCookie(session);
   }
 
   const account = accounts[0];
@@ -115,8 +115,8 @@ async function getSessionCookieFromGitHubUser(githubUser: GitHubUser) {
   }
 
   const user = users[0];
-  const session = await auth.createSession(user.id, {});
-  return auth.createSessionCookie(session.id);
+  const session = await createSession(user.id);
+  return createSessionCookie(session);
 }
 
 githubAuthRouter.get('/login', async (c) => {
