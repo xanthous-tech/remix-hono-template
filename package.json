@@ -87,7 +87,7 @@
     "remark-frontmatter": "^5.0.0",
     "remark-mdx-frontmatter": "^5.0.0",
     "remark-toc": "^9.0.0",
-    "remix-hono": "github:rphlmr/remix-hono#react-router-7",
+    "remix-hono": "^0.0.17",
     "remix-i18next": "^7.0.0",
     "rxjs": "^7.8.1",
     "tailwind-merge": "^2.5.3",

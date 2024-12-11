@@ -2,7 +2,7 @@ import 'dotenv/config';
 import { type ServerBuild } from 'react-router';
 import { serve } from '@hono/node-server';
 import { serveStatic } from '@hono/node-server/serve-static';
-import { remix as createRequestHandler } from 'remix-hono/handler';
+import { reactRouter as createRequestHandler } from 'remix-hono/handler';
 import { Hono } from 'hono';
 import { trimTrailingSlash } from 'hono/trailing-slash';
 
