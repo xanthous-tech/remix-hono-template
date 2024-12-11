@@ -6,6 +6,7 @@ import {
   integer,
   varchar,
 } from 'drizzle-orm/pg-core';
+import type { InferSelectModel } from 'drizzle-orm';
 
 import { Role } from '@/types/roles';
 
@@ -21,6 +22,8 @@ export const magicLinkTokenTable = pgTable('magic_link_token', {
   }).notNull(),
 });
 
+export type MagicLinkToken = InferSelectModel<typeof magicLinkTokenTable>;
+
 export const userTable = pgTable('user', {
   id: varchar('id').primaryKey().notNull(),
   email: text('email').unique('uniqueOnEmail', { nulls: 'distinct' }),
@@ -33,6 +36,8 @@ export const userTable = pgTable('user', {
     .defaultNow()
     .notNull(),
 });
+
+export type User = InferSelectModel<typeof userTable>;
 
 export const accountTable = pgTable(
   'account',
@@ -53,6 +58,8 @@ export const accountTable = pgTable(
   }),
 );
 
+export type Account = InferSelectModel<typeof accountTable>;
+
 export const sessionTable = pgTable('session', {
   id: text('id').primaryKey(),
   userId: text('user_id')
@@ -63,3 +70,5 @@ export const sessionTable = pgTable('session', {
     mode: 'date',
   }).notNull(),
 });
+
+export type Session = InferSelectModel<typeof sessionTable>;
