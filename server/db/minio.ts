@@ -72,3 +72,18 @@ export async function moveObject(
   );
   await minio.removeObject(bucketName, objectName);
 }
+
+export async function objectExists(
+  bucketName: string,
+  objectName: string,
+): Promise<boolean> {
+  try {
+    await minio.statObject(bucketName, objectName);
+    return true;
+  } catch (err) {
+    if ((err as any).code === 'NotFound') {
+      return false;
+    }
+    throw err;
+  }
+}

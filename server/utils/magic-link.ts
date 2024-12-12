@@ -1,7 +1,7 @@
-import { generateIdFromEntropySize } from 'lucia';
 import { and, desc, eq, gt } from 'drizzle-orm';
 import { z } from 'zod';
 
+import { generateIdFromEntropySize } from '@/utils/crypto';
 import { db } from '@/db/drizzle';
 import { magicLinkTokenTable } from '@/db/schema';
 import { magicLinkTokenSchema } from '@/types/magic-link';

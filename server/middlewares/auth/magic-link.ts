@@ -1,14 +1,14 @@
-import { generateIdFromEntropySize } from 'lucia';
 import { Hono } from 'hono';
 import { getCookie } from 'hono/cookie';
 import { eq } from 'drizzle-orm';
 
 import { logger as parentLogger } from '@/utils/logger';
+import { generateIdFromEntropySize } from '@/utils/crypto';
 import { getMagicLinkTokenById } from '@/utils/magic-link';
 import { createStripeCustomer } from '@/lib/stripe';
 import { db } from '@/db/drizzle';
 import { userTable } from '@/db/schema';
-import { auth } from '@/lib/auth';
+import { createSession, createSessionCookie } from '@/lib/auth';
 
 const logger = parentLogger.child({ middleware: 'magic-link-auth' });
 
@@ -47,8 +47,8 @@ async function getSessionCookieByMagicLinkToken(token: string) {
   }
 
   const user = users[0];
-  const session = await auth.createSession(user.id, {});
-  return auth.createSessionCookie(session.id);
+  const session = await createSession(user.id);
+  return createSessionCookie(session);
 }
 
 magicLinkAuthRouter.get('/:token', async (c) => {
