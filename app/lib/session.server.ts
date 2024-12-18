@@ -1,8 +1,7 @@
 import { redirect } from 'react-router';
 
 import { Route } from '@react-router-root-types/root';
-
-import { auth } from '@/lib/auth';
+import { invalidateSession, readSessionCookie } from '@/lib/auth';
 
 // throws if there is no session
 export async function validateSession({
@@ -18,9 +17,9 @@ export async function validateSession({
 
 export async function signout({ request }: Route.LoaderArgs): Promise<void> {
   const cookieHeader = request.headers.get('cookie') || '';
-  const sessionId = auth.readSessionCookie(cookieHeader);
+  const sessionId = readSessionCookie(cookieHeader);
 
   if (sessionId) {
-    await auth.invalidateSession(sessionId);
+    await invalidateSession(sessionId);
   }
 }
