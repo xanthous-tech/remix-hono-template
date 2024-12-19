@@ -2,27 +2,16 @@
 import Layout from "@site/layout/Layout.astro";
 
 import Header from "@site/components/header/Header.astro";
-import HeaderLink from "@site/components/header/HeaderLink.astro";
 import Hero from "@site/components/hero/Hero.astro";
 import Footer from "@site/components/Footer.astro";
 
 import { buttonVariants } from "~/components/ui/button";
-import { LanguageSwitcher } from "@site/components/LanguageSwitcher";
+
+const locale = "zh";
 ---
 
-<Layout title="我的产品">
-  <Header title="我的产品">
-    <Fragment slot="main-nav">
-      <HeaderLink href="/zh" isActive>首页</HeaderLink>
-      <HeaderLink href="/zh/blog">博客</HeaderLink>
-    </Fragment>
-    <Fragment slot="nav-actions">
-      <LanguageSwitcher client:load />
-      <a href="/signin" class={buttonVariants({ variant: "default" })}>
-        登录
-      </a>
-    </Fragment>
-  </Header>
+<Layout locale={locale}>
+  <Header locale={locale} />
   <Hero
     tagline="为您提供一个酷炫的产品"
     description="这是一个酷炫的产品。您可以用它做很多事情。"
@@ -31,10 +20,5 @@ import { LanguageSwitcher } from "@site/components/LanguageSwitcher";
       开始使用
     </a>
   </Hero>
-  <Footer>
-    <Fragment slot="footer-links">
-      <a href="/terms">服务条款</a>
-      <a href="/privacy">隐私政策</a>
-    </Fragment>
-  </Footer>
+  <Footer locale={locale} />
 </Layout>

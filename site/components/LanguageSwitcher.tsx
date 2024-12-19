@@ -1,13 +1,17 @@
 import { useEffect } from 'react';
 import { Languages } from 'lucide-react';
-import Cookies from 'js-cookie';
 
 import {
   locales,
   defaultLocale,
   localeNames,
   localeRegex,
-} from '@site/config/locale';
+  getLocaleFromCookie,
+  setLocaleCookie,
+  isPathnameInDefaultLocale,
+  isPathnameContainsLocale,
+} from '@site/utils/locale';
+
 import { Button } from '~/components/ui/button';
 import {
   DropdownMenu,
@@ -17,33 +21,12 @@ import {
 } from '~/components/ui/dropdown-menu';
 
 export function LanguageSwitcher() {
-  function getLocaleFromCookie() {
-    const localeCookieJsonStringBase64 =
-      Cookies.get('locale') ?? btoa(`"${defaultLocale}"`);
-    const localeCookieJsonString = atob(localeCookieJsonStringBase64);
-    const locale = JSON.parse(localeCookieJsonString);
-    return locale;
-  }
-
-  function setLocaleCookie(locale: string) {
-    const localeCookieJsonString = JSON.stringify(locale);
-    const localeCookieJsonStringBase64 = btoa(localeCookieJsonString);
-    Cookies.set('locale', localeCookieJsonStringBase64, {
-      sameSite: 'lax',
-    });
-  }
-
-  function isPathnameContainsLocale(locale: string) {
-    return window.location.pathname.startsWith(`/${locale}`);
-  }
-
-  function isPathnameInDefaultLocale() {
-    return window.location.pathname.match(localeRegex) === null;
-  }
-
   useEffect(() => {
     const locale = getLocaleFromCookie();
-    if (locale !== defaultLocale && isPathnameInDefaultLocale()) {
+    if (
+      locale !== defaultLocale &&
+      isPathnameInDefaultLocale(window.location.pathname)
+    ) {
       window.location.href = `/${locale}${window.location.pathname.replace(
         localeRegex,
         '',
@@ -65,7 +48,7 @@ export function LanguageSwitcher() {
             key={locale}
             onClick={() => {
               setLocaleCookie(locale);
-              if (isPathnameContainsLocale(locale)) {
+              if (isPathnameContainsLocale(window.location.pathname, locale)) {
                 window.location.reload();
               } else {
                 if (locale === defaultLocale) {

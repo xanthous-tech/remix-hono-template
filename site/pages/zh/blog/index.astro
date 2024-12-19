@@ -4,31 +4,18 @@ import { getCollection } from "astro:content";
 import Layout from "@site/layout/Layout.astro";
 
 import Header from "@site/components/header/Header.astro";
-import HeaderLink from "@site/components/header/HeaderLink.astro";
 import Footer from "@site/components/Footer.astro";
 import FormattedDate from "@site/components/FormattedDate.astro";
 
-import { buttonVariants } from "~/components/ui/button";
-import { LanguageSwitcher } from "@site/components/LanguageSwitcher";
+const locale = "zh";
 
 const posts = (await getCollection("blog-zh")).sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
 );
 ---
 
-<Layout title="产品博客">
-  <Header title="我的产品">
-    <Fragment slot="main-nav">
-      <HeaderLink href="/zh">首页</HeaderLink>
-      <HeaderLink href="/zh/blog" isActive>博客</HeaderLink>
-    </Fragment>
-    <Fragment slot="nav-actions">
-      <LanguageSwitcher client:load />
-      <a href="/signin" class={buttonVariants({ variant: "default" })}>
-        登录
-      </a>
-    </Fragment>
-  </Header>
+<Layout locale={locale} title="产品博客">
+  <Header locale={locale} />
   <div class="container max-w-4xl py-6 lg:py-10">
     <div
       class="flex flex-col items-start gap-4 md:flex-row md:justify-between md:gap-8"
@@ -66,7 +53,7 @@ const posts = (await getCollection("blog-zh")).sort(
                   <FormattedDate date={post.data.date} />
                 </p>
               )}
-              <a href={`/zh/blog/${post.slug}`} class="absolute inset-0">
+              <a href={`/zh/blog/${post.id}`} class="absolute inset-0">
                 <span class="sr-only">View Article</span>
               </a>
             </article>
@@ -77,10 +64,5 @@ const posts = (await getCollection("blog-zh")).sort(
       )
     }
   </div>
-  <Footer>
-    <Fragment slot="footer-links">
-      <a href="/terms">服务条款</a>
-      <a href="/privacy">隐私政策</a>
-    </Fragment>
-  </Footer>
+  <Footer locale={locale} />
 </Layout>

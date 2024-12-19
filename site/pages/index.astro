@@ -2,27 +2,14 @@
 import Layout from "@site/layout/Layout.astro";
 
 import Header from "@site/components/header/Header.astro";
-import HeaderLink from "@site/components/header/HeaderLink.astro";
 import Hero from "@site/components/hero/Hero.astro";
 import Footer from "@site/components/Footer.astro";
 
 import { buttonVariants } from "~/components/ui/button";
-import { LanguageSwitcher } from "@site/components/LanguageSwitcher";
 ---
 
-<Layout title="My Product">
-  <Header title="My Product">
-    <Fragment slot="main-nav">
-      <HeaderLink href="/" isActive>Home</HeaderLink>
-      <HeaderLink href="/blog">Blog</HeaderLink>
-    </Fragment>
-    <Fragment slot="nav-actions">
-      <LanguageSwitcher client:load />
-      <a href="/signin" class={buttonVariants({ variant: "default" })}>
-        Sign In
-      </a>
-    </Fragment>
-  </Header>
+<Layout>
+  <Header />
   <Hero
     tagline="A Cool Product for You"
     description="This is a cool product for you. You can use it for many things."
@@ -31,10 +18,5 @@ import { LanguageSwitcher } from "@site/components/LanguageSwitcher";
       Get Started
     </a>
   </Hero>
-  <Footer>
-    <Fragment slot="footer-links">
-      <a href="/terms">Terms of Service</a>
-      <a href="/privacy">Privacy Policy</a>
-    </Fragment>
-  </Footer>
+  <Footer />
 </Layout>

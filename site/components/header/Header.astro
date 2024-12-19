@@ -1,9 +1,36 @@
 ---
+import { getEntry } from "astro:content";
+
+import { defaultLocale } from "@site/utils/locale";
+import { LanguageSwitcher } from "@site/components/LanguageSwitcher";
+
+import { buttonVariants } from "~/components/ui/button";
+import HeaderLink from "./HeaderLink.astro";
+
 interface Props {
-  title: string;
+  locale?: string;
 }
 
-const { title } = Astro.props as Props;
+const { locale = "en" } = Astro.props;
+
+const { pathname } = Astro.url;
+
+// Load i18next translations
+const translation = await getEntry("translations", locale);
+// simple t function
+const t = (key: string, fallback?: string) =>
+  translation?.data?.[key] ?? fallback ?? key;
+
+const homePath = locale === defaultLocale ? "/" : `/${locale}`;
+const blogPath = locale === defaultLocale ? "/blog" : `/${locale}/blog`;
+
+const isHomeActive =
+  locale === defaultLocale ? pathname === "/" : pathname === `/${locale}`;
+
+const isBlogActive =
+  locale === defaultLocale
+    ? pathname.startsWith("/blog")
+    : pathname.startsWith(`/${locale}/blog`);
 ---
 
 <header
@@ -12,12 +39,17 @@ const { title } = Astro.props as Props;
   <div class="container flex h-14 max-w-screen-2xl items-center">
     {/* Main Nav */}
     <div class="mr-4 flex">
-      <a href="/" class="mr-6 flex items-center space-x-2">
+      <a href={homePath} class="mr-6 flex items-center space-x-2">
         {/* <Icons.logo class="h-6 w-6" /> */}
-        <span class="font-bold inline-block">{title}</span>
+        <span class="font-bold inline-block">{t("title")}</span>
       </a>
       <nav class="flex items-center gap-6 text-sm">
-        <slot name="main-nav" />
+        <HeaderLink href={homePath} isActive={isHomeActive}>
+          {t("home")}
+        </HeaderLink>
+        <HeaderLink href={blogPath} isActive={isBlogActive}>
+          {t("blog")}
+        </HeaderLink>
       </nav>
     </div>
     {/* TODO: Mobile Nav */}
@@ -25,7 +57,10 @@ const { title } = Astro.props as Props;
       class="flex flex-1 items-center justify-between space-x-2 md:justify-end"
     >
       <nav class="flex items-center space-x-2">
-        <slot name="nav-actions" />
+        <LanguageSwitcher client:load />
+        <a href="/signin" class={buttonVariants({ variant: "default" })}>
+          {t("signin")}
+        </a>
       </nav>
     </div>
   </div>

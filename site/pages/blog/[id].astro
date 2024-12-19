@@ -1,43 +1,32 @@
 ---
-import { type CollectionEntry, getCollection } from "astro:content";
+import { type CollectionEntry, getCollection, render } from "astro:content";
 import { ChevronLeft } from "lucide-react";
 
 import Layout from "@site/layout/Layout.astro";
 
 import Header from "@site/components/header/Header.astro";
-import HeaderLink from "@site/components/header/HeaderLink.astro";
 import Footer from "@site/components/Footer.astro";
 import FormattedDate from "@site/components/FormattedDate.astro";
 
 import { buttonVariants } from "~/components/ui/button";
-import { LanguageSwitcher } from "@site/components/LanguageSwitcher";
 
 export async function getStaticPaths() {
   const posts = await getCollection("blog-en");
   return posts.map((post) => ({
-    params: { slug: post.slug },
+    params: {
+      id: post.id,
+    },
     props: post,
   }));
 }
 type Props = CollectionEntry<"blog-en">;
 
 const post = Astro.props;
-const { Content } = await post.render();
+const { Content } = await render(post);
 ---
 
-<Layout title={`${post.data.title} - Product Blog`}>
-  <Header title="My Product">
-    <Fragment slot="main-nav">
-      <HeaderLink href="/">Home</HeaderLink>
-      <HeaderLink href="/blog" isActive>Blog</HeaderLink>
-    </Fragment>
-    <Fragment slot="nav-actions">
-      <LanguageSwitcher client:load />
-      <a href="/signin" class={buttonVariants({ variant: "default" })}>
-        Sign In
-      </a>
-    </Fragment>
-  </Header>
+<Layout title={post.data.title}>
+  <Header />
   <article class="container relative max-w-3xl py-6 lg:py-10">
     <div class="mb-8">
       {post.data.date && <FormattedDate date={post.data.date} />}
@@ -69,10 +58,5 @@ const { Content } = await post.render();
       </a>
     </div>
   </article>
-  <Footer>
-    <Fragment slot="footer-links">
-      <a href="/terms">Terms of Service</a>
-      <a href="/privacy">Privacy Policy</a>
-    </Fragment>
-  </Footer>
+  <Footer />
 </Layout>

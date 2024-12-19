@@ -15,6 +15,7 @@ export default defineConfig({
     locales: ["en", "zh"],
     defaultLocale: "en",
   },
+  trailingSlash: "never",
   integrations: [
     react({
       experimentalReactChildren: true,

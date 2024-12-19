@@ -1,46 +1,42 @@
 ---
-import { type CollectionEntry, getCollection } from "astro:content";
+import { type CollectionEntry, getCollection, render } from "astro:content";
 import { ChevronLeft } from "lucide-react";
 
 import Layout from "@site/layout/Layout.astro";
 
 import Header from "@site/components/header/Header.astro";
-import HeaderLink from "@site/components/header/HeaderLink.astro";
 import Footer from "@site/components/Footer.astro";
 import FormattedDate from "@site/components/FormattedDate.astro";
 
 import { buttonVariants } from "~/components/ui/button";
-import { LanguageSwitcher } from "@site/components/LanguageSwitcher";
 
 export async function getStaticPaths() {
   const posts = await getCollection("blog-zh");
   return posts.map((post) => ({
-    params: { slug: post.slug },
+    params: {
+      id: post.id,
+    },
     props: post,
   }));
 }
-type Props = CollectionEntry<"blog-en">;
+
+type Props = CollectionEntry<"blog-zh">;
+
+const locale = "zh";
 
 const post = Astro.props;
-const { Content } = await post.render();
+const { Content } = await render(post);
 ---
 
-<Layout title="产品博客">
-  <Header title="我的产品">
-    <Fragment slot="main-nav">
-      <HeaderLink href="/zh">首页</HeaderLink>
-      <HeaderLink href="/zh/blog" isActive>博客</HeaderLink>
-    </Fragment>
-    <Fragment slot="nav-actions">
-      <LanguageSwitcher client:load />
-      <a href="/signin" class={buttonVariants({ variant: "default" })}>
-        登录
-      </a>
-    </Fragment>
-  </Header>
+<Layout locale={locale} title={post.data.title}>
+  <Header locale={locale} />
   <article class="container relative max-w-3xl py-6 lg:py-10">
     <div class="mb-8">
-      {post.data.date && <FormattedDate date={post.data.date} />}
+      {
+        post.data.date && (
+          <FormattedDate date={post.data.date} locale={locale} />
+        )
+      }
       <h1
         class="mt-2 inline-block font-heading text-4xl font-bold leading-tight tracking-tighter lg:text-5xl"
       >
@@ -69,10 +65,5 @@ const { Content } = await post.render();
       </a>
     </div>
   </article>
-  <Footer>
-    <Fragment slot="footer-links">
-      <a href="/terms">服务条款</a>
-      <a href="/privacy">隐私政策</a>
-    </Fragment>
-  </Footer>
+  <Footer locale={locale} />
 </Layout>

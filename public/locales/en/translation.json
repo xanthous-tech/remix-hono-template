@@ -1,8 +1,11 @@
 {
+  "slug": "en",
   "home": "Home",
-  "faq": "FAQ",
+  "blog": "Blog",
   "title": "My Product",
   "signin": "Sign In",
   "subtitle": "A cool Product for you",
-  "description": "This is a cool product for you. You can use it for many things."
+  "description": "This is a cool product for you. You can use it for many things.",
+  "terms": "Terms of Service",
+  "privacy": "Privacy Policy"
 }

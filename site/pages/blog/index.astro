@@ -17,7 +17,7 @@ const posts = (await getCollection("blog-en")).sort(
 ---
 
 <Layout title="Product Blog">
-  <Header title="My Product">
+  <Header>
     <Fragment slot="main-nav">
       <HeaderLink href="/">Home</HeaderLink>
       <HeaderLink href="/blog" isActive>Blog</HeaderLink>
@@ -66,7 +66,7 @@ const posts = (await getCollection("blog-en")).sort(
                   <FormattedDate date={post.data.date} />
                 </p>
               )}
-              <a href={`/blog/${post.slug}`} class="absolute inset-0">
+              <a href={`/blog/${post.id}`} class="absolute inset-0">
                 <span class="sr-only">View Article</span>
               </a>
             </article>
